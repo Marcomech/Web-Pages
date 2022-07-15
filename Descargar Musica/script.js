@@ -35,14 +35,12 @@ function GetApi(MovieName){
 		.then(response => response.json())
 		.then(data => data.d)
 		.then(item =>{
+			console.log(item)
 			for (i in item){
-				const Title = item[i].l + "(" + item[i].y +")" 
-				const Code  = item[i].id
-				const Image = item[i].i.imageUrl
-				//console.log(Title)
-				//console.log(Code)
-				//console.log(Image)
-				if (Image){
+				if (item[i].i && item[i].i.imageUrl && item[i].y){
+					const Title = item[i].l + " (" + item[i].y +")" 
+					const Code  = item[i].id
+					const Image = item[i].i.imageUrl
 					movieList += 
 					`
 					<article class = "card">
@@ -51,9 +49,10 @@ function GetApi(MovieName){
 					</article>
 					`
 				}
-				
+				elements.innerHTML = movieList;	
+				console.log("ok")
 			}	
-			elements.innerHTML = movieList;			
+					
 		})
 		.catch(err => console.error(err))	
 }
