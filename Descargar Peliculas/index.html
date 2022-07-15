@@ -5,16 +5,20 @@
     <title>Movies</title>
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
+
+
+
+<div class="header">
+
+    <p id="title">Descargar peliculas</p>
+
+    <form id="form" class="form">
+        <input type="text" id="fMovie" name="fMovie" placeholder="Escriba el titulo"><br>  
+    </form>
+
+</div>
+
 <body>
-    <div class="header">
-        <p class="title">Descargar peliculas</p>
-
-        <form id="form" class="form">
-            <input type="text" id="fMovie" name="fMovie" placeholder="Escriba el titulo"><br>  
-        </form>
-    </div>
-
-
     <main class="container-grid" id = "elements">
         <article class="card">
             <img src="https://m.media-amazon.com/images/M/MV5BOTY4YjI2N2MtYmFlMC00ZjcyLTg3YjEtMDQyM2ZjYzQ5YWFkXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_.jpg" alt="" class="img-fluid">						
@@ -31,10 +35,19 @@
         <article class="card">
             <img src="https://m.media-amazon.com/images/M/MV5BZTM2NmZlOTEtYTI5NS00N2JjLWJkNzItMmZkNDBlYmQzNDA2XkEyXkFqcGdeQXVyMTAxODYyODI@._V1_.jpg" alt="" class="img-fluid">						
             <p class="movie-title">Batman (1989)</p>
-        </article>
+        </article>  
     </main>
 
+    <div class="zoom">
+        <img src="https://m.media-amazon.com/images/M/MV5BZTM2NmZlOTEtYTI5NS00N2JjLWJkNzItMmZkNDBlYmQzNDA2XkEyXkFqcGdeQXVyMTAxODYyODI@._V1_.jpg" alt="" class="full-image">
+        <div class="info">
+            <p id="movieTitle">Titulo</p>
+            <p id="movieDescription">En una galaxia la sacnsad</p>
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
 </body>
-<script src="./script.js"></script>
+
 </html>
 

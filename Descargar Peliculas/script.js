@@ -44,7 +44,7 @@ function GetApi(MovieName){
 					movieList += 
 					`
 					<article class = "card">
-						<img src="${Image}" alt="" class="img-fluid">						
+						<img src="${Image}" alt="${Code}" class="img-fluid">						
 						<p class="movie-title">${Title}</p>
 					</article>
 					`
@@ -78,9 +78,37 @@ function GenerateMagnet(hash, movie){
 	+"http://tracker2.dler.org:80/announce"
     return torrent
 }
+function zoom(){
+
+	const zoom = document.querySelector(".zoom");
+	const original = document.querySelector(".full-image");
+	const previews = document.querySelectorAll(".card img");
+
+	const movieTitle = document.querySelector("#movieTitle");
+	
+	previews.forEach(preview =>{
+		preview.addEventListener('click',() => {
+			zoom.classList.add('open');
+			original.src = preview.getAttribute("src");
+
+			const newTitle = preview.alt;
+			movieTitle.textContent = newTitle;
+		})
+	})
+	
+	zoom.addEventListener("click",(e) => {
+		if(e.target.classList.contains("zoom")){
+			zoom.classList.remove("open");
+		}
+	})
+}
 
 form.addEventListener('submit', e => {
 	e.preventDefault();
 	MovieName = checkInputs();
-	GetApi(MovieName); 
+	GetApi(MovieName);
+});
+
+elements.addEventListener("click", e => {
+	zoom();
 });

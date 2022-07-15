@@ -49,8 +49,7 @@ function GetApi(MovieName){
 					</article>
 					`
 				}
-				elements.innerHTML = movieList;	
-				console.log("ok")
+				elements.innerHTML = movieList;
 			}	
 					
 		})
