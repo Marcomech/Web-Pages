@@ -65,26 +65,32 @@ body{
     height: 100%;
     opacity: 0;
     pointer-events: none;
+    transition: 0.25s ease-out;
 }
 .zoom.open{
     opacity: 1;
     pointer-events: all;
+    transition: 0.25s ease-out;
 }
 
-.zoom #movieTitle{
+.zoom .info{
     color: aliceblue;
-    font-size: 4rem;
+    font-size: 1rem;
     position: absolute;
     top: 10%;
-    left: 55%;
+    left: 50%;
+    margin-right: 8rem;
+    text-align: justify;
 }
-.zoom #movieDescription{
+
+
+.zoom .info #movieTitle{
     color: aliceblue;
-    font-size: 2rem;
-    position: absolute;
-    top: 30%;
-    left: 55%;
+    font-size: 3rem;
 }
+
+
+
 .zoom img{
     position: absolute;
     left: 10%;

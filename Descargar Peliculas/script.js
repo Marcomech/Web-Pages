@@ -1,4 +1,4 @@
-const items = document.getElementById("elements");
+
 function checkInputs() {
 	const MovieName = fMovie.value;
 	return MovieName.replaceAll(" ","-");
@@ -12,17 +12,21 @@ function GetTorrent(Id){
 			'X-RapidAPI-Host': 'movies-and-serials-torrent.p.rapidapi.com'
 		}
 	};
-
-	fetch(`https://movies-and-serials-torrent.p.rapidapi.com/movies/search/${Id}`, options)
-		.then(response => response.json())
-		.then(data => {
-			hashValue = data.data.movies[0].torrents[0].hash;
-			return(hashValue)
-		})
-		.catch(err => console.error(err));
+	return new Promise(function(resolve, reject) {
+		fetch(`https://movies-and-serials-torrent.p.rapidapi.com/movies/search/${Id}`, options)
+			.then(response => response.json())
+			.then(r => {
+				const out = r.data.movies[0];
+				console.log(out);
+				resolve(out);
+			})
+			.catch(err => console.error(err));
+	})
+	
 }
 
 function GetApi(MovieName){
+	const items = document.getElementById("elements");
 	const options = {
 		method: 'GET',
 		headers: {
@@ -35,7 +39,6 @@ function GetApi(MovieName){
 		.then(response => response.json())
 		.then(data => data.d)
 		.then(item =>{
-			console.log(item)
 			for (i in item){
 				if (item[i].i && item[i].i.imageUrl && item[i].y){
 					const Title = item[i].l + " (" + item[i].y +")" 
@@ -78,21 +81,20 @@ function GenerateMagnet(hash, movie){
 	+"http://tracker2.dler.org:80/announce"
     return torrent
 }
+
 function zoom(){
 
 	const zoom = document.querySelector(".zoom");
 	const original = document.querySelector(".full-image");
 	const previews = document.querySelectorAll(".card img");
-
-	const movieTitle = document.querySelector("#movieTitle");
 	
-	previews.forEach(preview =>{
+	previews.forEach(preview => {
 		preview.addEventListener('click',() => {
 			zoom.classList.add('open');
 			original.src = preview.getAttribute("src");
 
-			const newTitle = preview.alt;
-			movieTitle.textContent = newTitle;
+			const Code = preview.alt;			
+			fillZoom(Code);
 		})
 	})
 	
@@ -103,12 +105,42 @@ function zoom(){
 	})
 }
 
+function fillZoom(Code){
+	console.log(Code);
+	GetTorrent(Code).then(v =>{
+		console.log(v);
+		const movieTitle       	= document.querySelector("#movieTitle");
+		const movieDescription 	= document.querySelector("#movieDescription");
+		const movieRating 		= document.querySelector("#movieRating");
+		const movieRuntime 		= document.querySelector("#movieRuntime");
+		const movieTorrent 		= document.querySelector("#movieTorrent");
+
+		const description = v.description_full;
+		const title = v.title_long;
+		const rating = v.rating;
+		const runtime = v.runtime;
+		const torrent1 = v.torrents[0];
+		const torrent2 = v.torrents[1];
+		const torrent3 = v.torrents[2];
+		
+		movieTitle.textContent			= title;
+		movieDescription.textContent 	= description;
+		movieRating.textContent 		= "Puntuacion: "+rating;
+		movieRuntime.textContent 		= "Duracion: "+runtime+"min";
+		movieTorrent.textContent 	= torrent1;
+	})
+}
+
+//Al tocar enter (busca las peliculas)
 form.addEventListener('submit', e => {
 	e.preventDefault();
 	MovieName = checkInputs();
 	GetApi(MovieName);
 });
 
+//Al clikear en la pelicula (zoom)
 elements.addEventListener("click", e => {
-	zoom();
+	zoom()
 });
+
+
