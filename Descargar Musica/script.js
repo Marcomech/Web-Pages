@@ -1,59 +1,102 @@
-const items = document.getElementById("elements");
 function checkInputs() {
 	const MovieName = fMovie.value;
 	return MovieName.replaceAll(" ","-");
 }
 
-function GetTorrent(Id){
-	const options = {
-		method: 'GET',
-		headers: {
-			'X-RapidAPI-Key': '7dacbfbe26mshf90acba44fffd95p1ba356jsne52e36e39442',
-			'X-RapidAPI-Host': 'movies-and-serials-torrent.p.rapidapi.com'
-		}
-	};
-
-	fetch(`https://movies-and-serials-torrent.p.rapidapi.com/movies/search/${Id}`, options)
-		.then(response => response.json())
-		.then(data => {
-			hashValue = data.data.movies[0].torrents[0].hash;
-			return(hashValue)
-		})
-		.catch(err => console.error(err));
-}
-
 function GetApi(MovieName){
 	const options = {
 		method: 'GET',
-		headers: {
-			'X-RapidAPI-Key': '7dacbfbe26mshf90acba44fffd95p1ba356jsne52e36e39442',
-			'X-RapidAPI-Host': 'online-movie-database.p.rapidapi.com'
-		}
+
 	};
+	return new Promise(function(resolve, reject) {
+		movieList = [];
+		fetch(('https://yts.mx/api/v2/list_movies.json?sort_by=download_count&query_term='+MovieName), options)
+			.then(response => response.json())
+			.then(data => data.data.movies)
+			.then(item =>{
+				resolve(item)
+			})
+			.catch(err => console.error(err))	
+	}) 
+}
+
+function fillDisplay(item){
+	const elements = document.getElementById("elements");
 	movieList = [];
-	fetch(('https://online-movie-database.p.rapidapi.com/auto-complete?q='+MovieName), options)
-		.then(response => response.json())
-		.then(data => data.d)
-		.then(item =>{
-			console.log(item)
-			for (i in item){
-				if (item[i].i && item[i].i.imageUrl && item[i].y){
-					const Title = item[i].l + " (" + item[i].y +")" 
-					const Code  = item[i].id
-					const Image = item[i].i.imageUrl
-					movieList += 
-					`
-					<article class = "card">
-						<img src="${Image}" alt="" class="img-fluid">						
-						<p class="movie-title">${Title}</p>
-					</article>
-					`
-				}
-				elements.innerHTML = movieList;
-			}	
+	item.forEach(x => {
+		if (x.medium_cover_image && x.large_cover_image){
+			
+				const Title 	= x.title_long
+				const BigImage  = x.large_cover_image
+				const Image 	= x.medium_cover_image
+				const rating	= x.rating
+				const runtime	= x.runtime
+				const summary	= x.summary
+				const torrent = x.torrents
+
+				movieList += 
+				`
+				<article class = "card">
+					<img src="${Image}" alt="${BigImage}" class="img-fluid">						
+					<p Id="MovieTitle">${Title}</p>
+					<p hidden Id="rating">${rating}</p>
+					<p hidden Id="runtime">${runtime}</p>
+					<p hidden Id="summary">${summary}</p>`
 					
+				torrent.forEach(t=>{
+					movieList += 
+					`<p hidden href="${t.url}" alt="${t.size}" Id="torrent">${t.quality}</p>`
+				})	
+				movieList += 
+				`
+				</article>
+				`
+		}
+	})
+	elements.innerHTML = movieList;
+}
+
+function zoom(){
+
+	const zoom = document.querySelector(".zoom"); 
+	const previews = document.querySelectorAll(".card");
+	
+	previews.forEach(preview => {
+		preview.addEventListener('click',() => {
+			fillZoom(preview);
+			zoom.classList.add('open');
 		})
-		.catch(err => console.error(err))	
+	})
+	
+	zoom.addEventListener("click",(e) => {
+		if(e.target.classList.contains("zoom")){
+			zoom.classList.remove("open");
+		}
+	})
+}
+
+function fillZoom(Card){
+
+	const Title 	= Card.querySelector("#MovieTitle");
+	const Summary 	= Card.querySelector("#summary");
+	const Rating    = Card.querySelector("#rating");
+	const Runtime 	= Card.querySelector("#runtime");
+	const Image 	= Card.querySelector("img");
+
+	const movieTitle		 = document.querySelector("#movieTitle"); 
+	const movieDescription	 = document.querySelector("#movieDescription"); 
+	const movieRating		 = document.querySelector("#movieRating"); 
+	const movieRuntime		 = document.querySelector("#movieRuntime"); 
+	const movieImage 		 = document.querySelector(".full-image"); 
+
+
+	movieTitle.textContent			= Title.textContent;
+	movieDescription.textContent 	= Summary.textContent;
+	movieRating.textContent 		= "Puntuacion: "+Rating.textContent;
+	movieRuntime.textContent 		= "Duracion: "+Runtime.textContent+"min";
+	movieImage.src 					= Image.alt;
+	//movieTorrent.textContent 	= torrent1;
+	console.log()
 }
 
 function GenerateMagnet(hash, movie){
@@ -78,9 +121,24 @@ function GenerateMagnet(hash, movie){
 	+"http://tracker2.dler.org:80/announce"
     return torrent
 }
+//funcionamiento con la aplicacion
+
+//inicio
+GetApi("").then(item =>{
+	fillDisplay(item);
+})
+
+//Busqueda
 
 form.addEventListener('submit', e => {
 	e.preventDefault();
 	MovieName = checkInputs();
-	GetApi(MovieName); 
+	GetApi(MovieName).then(item =>{
+		fillDisplay(item);
+	})
 });
+
+//Zoom
+elements.addEventListener("click", e => {
+	zoom()
+})

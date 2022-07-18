@@ -26,7 +26,6 @@ function GetTorrent(Id){
 }
 
 function GetApi(MovieName){
-	const items = document.getElementById("elements");
 	const options = {
 		method: 'GET',
 		headers: {
@@ -34,29 +33,16 @@ function GetApi(MovieName){
 			'X-RapidAPI-Host': 'online-movie-database.p.rapidapi.com'
 		}
 	};
-	movieList = [];
-	fetch(('https://online-movie-database.p.rapidapi.com/auto-complete?q='+MovieName), options)
-		.then(response => response.json())
-		.then(data => data.d)
-		.then(item =>{
-			for (i in item){
-				if (item[i].i && item[i].i.imageUrl && item[i].y){
-					const Title = item[i].l + " (" + item[i].y +")" 
-					const Code  = item[i].id
-					const Image = item[i].i.imageUrl
-					movieList += 
-					`
-					<article class = "card">
-						<img src="${Image}" alt="${Code}" class="img-fluid">						
-						<p class="movie-title">${Title}</p>
-					</article>
-					`
-				}
-				elements.innerHTML = movieList;
-			}	
-					
-		})
-		.catch(err => console.error(err))	
+	return new Promise(function(resolve, reject) {
+		movieList = [];
+		fetch(('https://online-movie-database.p.rapidapi.com/auto-complete?q='+MovieName), options)
+			.then(response => response.json())
+			.then(data => data.d)
+			.then(item =>{
+				resolve(item)
+			})
+			.catch(err => console.error(err))	
+	}) 
 }
 
 function GenerateMagnet(hash, movie){
@@ -131,11 +117,33 @@ function fillZoom(Code){
 	})
 }
 
+function fillDisplay(item){
+	const elements = document.getElementById("elements");
+	movieList = [];
+
+	item.forEach(x => {
+		if (x.i && x.i.imageUrl && x.y){
+			const Title = x.l + " (" + x.y +")" 
+			const Code  = x.id
+			const Image = x.i.imageUrl
+			movieList += 
+			`
+			<article class = "card">
+				<img src="${Image}" alt="${Code}" class="img-fluid">						
+				<p class="movie-title">${Title}</p>
+			</article>
+			`
+		}
+	})
+	elements.innerHTML = movieList;
+}
+
 //Al tocar enter (busca las peliculas)
 form.addEventListener('submit', e => {
 	e.preventDefault();
 	MovieName = checkInputs();
-	GetApi(MovieName);
+	const item = GetApi(MovieName);
+	fillDisplay(item);
 });
 
 //Al clikear en la pelicula (zoom)
@@ -144,3 +152,5 @@ elements.addEventListener("click", e => {
 });
 
 
+						
+			
