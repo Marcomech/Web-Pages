@@ -39,7 +39,7 @@ body{
     background-color: dimgray;
     overflow: hidden;
 }
-#MovieTitle{
+.movie-title{
     text-align: center;
     font-weight: bold;
     font-size: 26px;
@@ -70,23 +70,17 @@ body{
 .zoom.open{
     opacity: 1;
     pointer-events: all;
-    transition: 0.5s ease-out;
+    transition: 0.25s ease-out;
 }
 
 .zoom .info{
     color: aliceblue;
-    font-size: 1.2rem;
+    font-size: 1rem;
     position: absolute;
     top: 10%;
     left: 50%;
     margin-right: 8rem;
     text-align: justify;
-}
-.zoom .info #movieDescription{
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 9;
-    -webkit-box-orient: vertical;
 }
 
 
@@ -95,10 +89,11 @@ body{
     font-size: 3rem;
 }
 
+
+
 .zoom img{
     position: absolute;
     left: 10%;
     top: 5%;
     height: 35rem;
 }
-

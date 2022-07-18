@@ -1,102 +1,48 @@
+
 function checkInputs() {
 	const MovieName = fMovie.value;
 	return MovieName.replaceAll(" ","-");
 }
 
+function GetTorrent(Id){
+	const options = {
+		method: 'GET',
+		headers: {
+			'X-RapidAPI-Key': '7dacbfbe26mshf90acba44fffd95p1ba356jsne52e36e39442',
+			'X-RapidAPI-Host': 'movies-and-serials-torrent.p.rapidapi.com'
+		}
+	};
+	return new Promise(function(resolve, reject) {
+		fetch(`https://movies-and-serials-torrent.p.rapidapi.com/movies/search/${Id}`, options)
+			.then(response => response.json())
+			.then(r => {
+				const out = r.data.movies[0];
+				console.log(out);
+				resolve(out);
+			})
+			.catch(err => console.error(err));
+	})
+	
+}
+
 function GetApi(MovieName){
 	const options = {
 		method: 'GET',
-
+		headers: {
+			'X-RapidAPI-Key': '7dacbfbe26mshf90acba44fffd95p1ba356jsne52e36e39442',
+			'X-RapidAPI-Host': 'online-movie-database.p.rapidapi.com'
+		}
 	};
 	return new Promise(function(resolve, reject) {
 		movieList = [];
-		fetch(('https://yts.mx/api/v2/list_movies.json?sort_by=download_count&query_term='+MovieName), options)
+		fetch(('https://online-movie-database.p.rapidapi.com/auto-complete?q='+MovieName), options)
 			.then(response => response.json())
-			.then(data => data.data.movies)
+			.then(data => data.d)
 			.then(item =>{
 				resolve(item)
 			})
 			.catch(err => console.error(err))	
 	}) 
-}
-
-function fillDisplay(item){
-	const elements = document.getElementById("elements");
-	movieList = [];
-	item.forEach(x => {
-		if (x.medium_cover_image && x.large_cover_image){
-			
-				const Title 	= x.title_long
-				const BigImage  = x.large_cover_image
-				const Image 	= x.medium_cover_image
-				const rating	= x.rating
-				const runtime	= x.runtime
-				const summary	= x.summary
-				const torrent = x.torrents
-
-				movieList += 
-				`
-				<article class = "card">
-					<img src="${Image}" alt="${BigImage}" class="img-fluid">						
-					<p Id="MovieTitle">${Title}</p>
-					<p hidden Id="rating">${rating}</p>
-					<p hidden Id="runtime">${runtime}</p>
-					<p hidden Id="summary">${summary}</p>`
-					
-				torrent.forEach(t=>{
-					movieList += 
-					`<p hidden href="${t.url}" alt="${t.size}" Id="torrent">${t.quality}</p>`
-				})	
-				movieList += 
-				`
-				</article>
-				`
-		}
-	})
-	elements.innerHTML = movieList;
-}
-
-function zoom(){
-
-	const zoom = document.querySelector(".zoom"); 
-	const previews = document.querySelectorAll(".card");
-	
-	previews.forEach(preview => {
-		preview.addEventListener('click',() => {
-			fillZoom(preview);
-			zoom.classList.add('open');
-		})
-	})
-	
-	zoom.addEventListener("click",(e) => {
-		if(e.target.classList.contains("zoom")){
-			zoom.classList.remove("open");
-		}
-	})
-}
-
-function fillZoom(Card){
-
-	const Title 	= Card.querySelector("#MovieTitle");
-	const Summary 	= Card.querySelector("#summary");
-	const Rating    = Card.querySelector("#rating");
-	const Runtime 	= Card.querySelector("#runtime");
-	const Image 	= Card.querySelector("img");
-
-	const movieTitle		 = document.querySelector("#movieTitle"); 
-	const movieDescription	 = document.querySelector("#movieDescription"); 
-	const movieRating		 = document.querySelector("#movieRating"); 
-	const movieRuntime		 = document.querySelector("#movieRuntime"); 
-	const movieImage 		 = document.querySelector(".full-image"); 
-
-
-	movieTitle.textContent			= Title.textContent;
-	movieDescription.textContent 	= Summary.textContent;
-	movieRating.textContent 		= "Puntuacion: "+Rating.textContent;
-	movieRuntime.textContent 		= "Duracion: "+Runtime.textContent+"min";
-	movieImage.src 					= Image.alt;
-	//movieTorrent.textContent 	= torrent1;
-	console.log()
 }
 
 function GenerateMagnet(hash, movie){
@@ -121,24 +67,90 @@ function GenerateMagnet(hash, movie){
 	+"http://tracker2.dler.org:80/announce"
     return torrent
 }
-//funcionamiento con la aplicacion
 
-//inicio
-GetApi("").then(item =>{
-	fillDisplay(item);
-})
+function zoom(){
 
-//Busqueda
+	const zoom = document.querySelector(".zoom");
+	const original = document.querySelector(".full-image");
+	const previews = document.querySelectorAll(".card img");
+	
+	previews.forEach(preview => {
+		preview.addEventListener('click',() => {
+			zoom.classList.add('open');
+			original.src = preview.getAttribute("src");
 
+			const Code = preview.alt;			
+			fillZoom(Code);
+		})
+	})
+	
+	zoom.addEventListener("click",(e) => {
+		if(e.target.classList.contains("zoom")){
+			zoom.classList.remove("open");
+		}
+	})
+}
+
+function fillZoom(Code){
+	console.log(Code);
+	GetTorrent(Code).then(v =>{
+		console.log(v);
+		const movieTitle       	= document.querySelector("#movieTitle");
+		const movieDescription 	= document.querySelector("#movieDescription");
+		const movieRating 		= document.querySelector("#movieRating");
+		const movieRuntime 		= document.querySelector("#movieRuntime");
+		const movieTorrent 		= document.querySelector("#movieTorrent");
+
+		const description = v.description_full;
+		const title = v.title_long;
+		const rating = v.rating;
+		const runtime = v.runtime;
+		const torrent1 = v.torrents[0];
+		const torrent2 = v.torrents[1];
+		const torrent3 = v.torrents[2];
+		
+		movieTitle.textContent			= title;
+		movieDescription.textContent 	= description;
+		movieRating.textContent 		= "Puntuacion: "+rating;
+		movieRuntime.textContent 		= "Duracion: "+runtime+"min";
+		movieTorrent.textContent 	= torrent1;
+	})
+}
+
+function fillDisplay(item){
+	const elements = document.getElementById("elements");
+	movieList = [];
+
+	item.forEach(x => {
+		if (x.i && x.i.imageUrl && x.y){
+			const Title = x.l + " (" + x.y +")" 
+			const Code  = x.id
+			const Image = x.i.imageUrl
+			movieList += 
+			`
+			<article class = "card">
+				<img src="${Image}" alt="${Code}" class="img-fluid">						
+				<p class="movie-title">${Title}</p>
+			</article>
+			`
+		}
+	})
+	elements.innerHTML = movieList;
+}
+
+//Al tocar enter (busca las peliculas)
 form.addEventListener('submit', e => {
 	e.preventDefault();
 	MovieName = checkInputs();
-	GetApi(MovieName).then(item =>{
-		fillDisplay(item);
-	})
+	const item = GetApi(MovieName);
+	fillDisplay(item);
 });
 
-//Zoom
+//Al clikear en la pelicula (zoom)
 elements.addEventListener("click", e => {
 	zoom()
-})
+});
+
+
+						
+			

@@ -6,11 +6,14 @@
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-    <p class="red_background">CSS is Awesome</p>
-    <p class="red_background">Realy</p>
-    <p id="button">Incrementar contador</p>
-    <p id="box1">Cero :)</p>
-    <div>Pablito clavo un clavito</div>
-    <script src="./script.js"></script>
+    <h1>The Document Object</h1>
+
+    <h2 class="example">A heading</h2>
+    <p href ="google.com" class="example">A paragraph.</p> 
+
+    <script>
+        const x = document.querySelector("p.example").getAttribute('href');
+        console.log(x);
+    </script>
 </body>
 </html>
